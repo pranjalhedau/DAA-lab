@@ -1,0 +1,65 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define INF (INT_MAX / 2)
+
+int n;
+int cost[15][15];
+int dp[1 << 15][15];
+
+int tsp(int mask, int pos) {
+    if (mask == (1 << n) - 1) {
+        if (cost[pos][0] == -1)
+            return INF;
+        return cost[pos][0];
+    }
+
+    if (dp[mask][pos] != -1)
+        return dp[mask][pos];
+
+    int ans = INF;
+
+    for (int city = 0; city < n; city++) {
+        if (!(mask & (1 << city)) && cost[pos][city] != -1) {
+            int remaining = tsp(mask | (1 << city), city);
+
+            if (remaining < INF) {
+                int total = cost[pos][city] + remaining;
+                if (total < ans)
+                    ans = total;
+            }
+        }
+    }
+
+    return dp[mask][pos] = ans;
+}
+
+int main() {
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            scanf("%d", &cost[i][j]);
+        }
+    }
+
+    if (n == 1) {
+        printf("0\n");
+        return 0;
+    }
+
+    for (int i = 0; i < (1 << n); i++) {
+        for (int j = 0; j < n; j++) {
+            dp[i][j] = -1;
+        }
+    }
+
+    int ans = tsp(1, 0);
+
+    if (ans >= INF)
+        printf("-1\n");
+    else
+        printf("%d\n", ans);
+
+    return 0;
+}
